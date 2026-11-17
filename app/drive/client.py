@@ -23,11 +23,19 @@ class DriveFile:
     mime_type: str
     size: int | None
 
+    @property
+    def kind(self) -> str:
+        """Processing family of the file: "pdf" (PDF parser) or "image" (OCR)."""
+        return "pdf" if self.mime_type == "application/pdf" else "image"
+
 
 class DriveClient:
     def __init__(self, api_key: str, http: httpx.Client | None = None, timeout: float = 15.0):
         self._api_key = api_key
         self._http = http or httpx.Client(timeout=timeout)
+
+    def close(self) -> None:
+        self._http.close()
 
     def list_files(self, folder_id: str) -> list[DriveFile]:
         """List the PDFs and images directly inside a public folder (no recursion)."""
