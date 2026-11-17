@@ -4,6 +4,12 @@ from dataclasses import dataclass
 
 import httpx
 
+from app.drive.errors import (
+    DriveConfigError,
+    DriveUnavailableError,
+    FolderNotAccessibleError,
+)
+
 DRIVE_API_URL = "https://www.googleapis.com/drive/v3"
 
 # PNG and JPG/JPEG files all report image/jpeg or image/png as their mime type.
@@ -25,6 +31,9 @@ class DriveClient:
 
     def list_files(self, folder_id: str) -> list[DriveFile]:
         """List the PDFs and images directly inside a public folder (no recursion)."""
+        if not self._api_key:
+            raise DriveConfigError("The server has no GOOGLE_API_KEY configured. See the README.")
+
         mime_filter = " or ".join(f"mimeType = '{m}'" for m in SUPPORTED_MIME_TYPES)
         params = {
             "q": f"'{folder_id}' in parents and trashed = false and ({mime_filter})",
@@ -36,8 +45,13 @@ class DriveClient:
 
         files: list[DriveFile] = []
         while True:
-            response = self._http.get(f"{DRIVE_API_URL}/files", params=params)
-            response.raise_for_status()
+            try:
+                response = self._http.get(f"{DRIVE_API_URL}/files", params=params)
+            except httpx.HTTPError as exc:
+                raise DriveUnavailableError(
+                    "Could not reach Google Drive. Check the connection and try again."
+                ) from exc
+            _raise_for_drive_error(response)
             payload = response.json()
             files.extend(_to_drive_file(item) for item in payload.get("files", []))
 
@@ -55,3 +69,40 @@ def _to_drive_file(item: dict) -> DriveFile:
         mime_type=item["mimeType"],
         size=int(size) if size is not None else None,
     )
+
+
+def _error_reasons(response: httpx.Response) -> set[str]:
+    """Collect the machine-readable reasons Google puts in an error body."""
+    try:
+        error = response.json().get("error", {})
+    except ValueError:
+        return set()
+    if not isinstance(error, dict):
+        return set()
+    reasons = {e.get("reason") for e in error.get("errors", []) if isinstance(e, dict)}
+    reasons |= {d.get("reason") for d in error.get("details", []) if isinstance(d, dict)}
+    return {r for r in reasons if r}
+
+
+def _raise_for_drive_error(response: httpx.Response) -> None:
+    if response.is_success:
+        return
+
+    status = response.status_code
+    reasons = _error_reasons(response)
+
+    if reasons & {"API_KEY_INVALID", "keyInvalid"}:
+        raise DriveConfigError("The Google API key is invalid. Check GOOGLE_API_KEY in .env.")
+    if reasons & {"accessNotConfigured", "SERVICE_DISABLED"}:
+        raise DriveConfigError("The Google Drive API is not enabled for this API key's project.")
+    if status == 429 or reasons & {
+        "rateLimitExceeded",
+        "userRateLimitExceeded",
+        "dailyLimitExceeded",
+    }:
+        raise DriveUnavailableError("Google Drive rate limit reached. Try again in a moment.")
+    if status in (403, 404):
+        raise FolderNotAccessibleError(
+            "Folder not found or not public. Share it as 'Anyone with the link' (Viewer)."
+        )
+    raise DriveUnavailableError(f"Google Drive returned an unexpected error (HTTP {status}).")
