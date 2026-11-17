@@ -19,3 +19,7 @@ class DriveConfigError(DriveError):
 
 class DriveUnavailableError(DriveError):
     """Google Drive could not be reached, or refused the request for a transient reason."""
+
+
+class FileTooLargeError(DriveError):
+    """The file is bigger than the configured MAX_FILE_MB limit."""

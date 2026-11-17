@@ -1,12 +1,18 @@
 """Minimal Google Drive API v3 client for public folders (API key, no OAuth)."""
 
+import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
+from pathlib import Path
 
 import httpx
 
 from app.drive.errors import (
     DriveConfigError,
+    DriveError,
     DriveUnavailableError,
+    FileTooLargeError,
     FolderNotAccessibleError,
 )
 
@@ -14,6 +20,15 @@ DRIVE_API_URL = "https://www.googleapis.com/drive/v3"
 
 # PNG and JPG/JPEG files all report image/jpeg or image/png as their mime type.
 SUPPORTED_MIME_TYPES = ("application/pdf", "image/png", "image/jpeg")
+
+_EXTENSIONS = {"application/pdf": ".pdf", "image/png": ".png", "image/jpeg": ".jpg"}
+
+_FOLDER_NOT_ACCESSIBLE = (
+    "Folder not found or not public. Share it as 'Anyone with the link' (Viewer)."
+)
+_FILE_NOT_ACCESSIBLE = (
+    "This file cannot be downloaded: it is private, deleted or download-restricted."
+)
 
 
 @dataclass(frozen=True)
@@ -39,8 +54,7 @@ class DriveClient:
 
     def list_files(self, folder_id: str) -> list[DriveFile]:
         """List the PDFs and images directly inside a public folder (no recursion)."""
-        if not self._api_key:
-            raise DriveConfigError("The server has no GOOGLE_API_KEY configured. See the README.")
+        self._require_api_key()
 
         mime_filter = " or ".join(f"mimeType = '{m}'" for m in SUPPORTED_MIME_TYPES)
         params = {
@@ -59,7 +73,7 @@ class DriveClient:
                 raise DriveUnavailableError(
                     "Could not reach Google Drive. Check the connection and try again."
                 ) from exc
-            _raise_for_drive_error(response)
+            _raise_for_drive_error(response, _FOLDER_NOT_ACCESSIBLE)
             payload = response.json()
             files.extend(_to_drive_file(item) for item in payload.get("files", []))
 
@@ -67,6 +81,65 @@ class DriveClient:
             if not next_page:
                 return files
             params = {**params, "pageToken": next_page}
+
+    @contextmanager
+    def temporary_download(self, file: DriveFile, max_bytes: int) -> Iterator[Path]:
+        """Download ``file`` into a temporary directory that is removed on exit.
+
+        The local name is derived from the file id, never from the Drive name,
+        so a hostile file name cannot escape the temporary directory.
+        """
+        with tempfile.TemporaryDirectory(prefix="drive-to-text-") as tmp_dir:
+            path = Path(tmp_dir) / f"{file.id}{_EXTENSIONS.get(file.mime_type, '.bin')}"
+            self.download_file(file.id, path, max_bytes)
+            yield path
+
+    def download_file(self, file_id: str, destination: Path, max_bytes: int) -> None:
+        """Stream a public file to ``destination``, refusing anything above ``max_bytes``."""
+        self._require_api_key()
+        params = {"alt": "media", "key": self._api_key}
+        try:
+            with self._http.stream(
+                "GET", f"{DRIVE_API_URL}/files/{file_id}", params=params
+            ) as response:
+                if not response.is_success:
+                    response.read()
+                    _raise_for_drive_error(response, _FILE_NOT_ACCESSIBLE)
+                _check_declared_size(response, max_bytes)
+                _write_with_limit(response, destination, max_bytes)
+        except httpx.HTTPError as exc:
+            destination.unlink(missing_ok=True)
+            raise DriveUnavailableError(
+                "Could not download the file from Google Drive. Try again."
+            ) from exc
+        except DriveError:
+            destination.unlink(missing_ok=True)
+            raise
+
+    def _require_api_key(self) -> None:
+        if not self._api_key:
+            raise DriveConfigError("The server has no GOOGLE_API_KEY configured. See the README.")
+
+
+def _check_declared_size(response: httpx.Response, max_bytes: int) -> None:
+    declared = response.headers.get("content-length")
+    if declared and declared.isdigit() and int(declared) > max_bytes:
+        raise FileTooLargeError(_too_large_message(max_bytes))
+
+
+def _write_with_limit(response: httpx.Response, destination: Path, max_bytes: int) -> None:
+    """Write the body chunk by chunk and stop as soon as the limit is crossed."""
+    written = 0
+    with destination.open("wb") as out:
+        for chunk in response.iter_bytes():
+            written += len(chunk)
+            if written > max_bytes:
+                raise FileTooLargeError(_too_large_message(max_bytes))
+            out.write(chunk)
+
+
+def _too_large_message(max_bytes: int) -> str:
+    return f"File is larger than the {max_bytes // (1024 * 1024)} MB limit."
 
 
 def _to_drive_file(item: dict) -> DriveFile:
@@ -92,7 +165,7 @@ def _error_reasons(response: httpx.Response) -> set[str]:
     return {r for r in reasons if r}
 
 
-def _raise_for_drive_error(response: httpx.Response) -> None:
+def _raise_for_drive_error(response: httpx.Response, not_accessible_message: str) -> None:
     if response.is_success:
         return
 
@@ -110,7 +183,5 @@ def _raise_for_drive_error(response: httpx.Response) -> None:
     }:
         raise DriveUnavailableError("Google Drive rate limit reached. Try again in a moment.")
     if status in (403, 404):
-        raise FolderNotAccessibleError(
-            "Folder not found or not public. Share it as 'Anyone with the link' (Viewer)."
-        )
+        raise FolderNotAccessibleError(not_accessible_message)
     raise DriveUnavailableError(f"Google Drive returned an unexpected error (HTTP {status}).")
