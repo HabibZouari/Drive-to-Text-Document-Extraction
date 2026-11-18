@@ -30,6 +30,10 @@ def recognize(image: Image.Image, language: str = "eng") -> str:
     except pytesseract.TesseractNotFoundError as exc:
         raise ExtractionError("The OCR engine (Tesseract) is not installed on the server.") from exc
     except pytesseract.TesseractError as exc:
+        if "Failed loading language" in str(exc) or "Error opening data file" in str(exc):
+            raise ExtractionError(
+                f"The OCR language pack for '{language}' is not installed on the server."
+            ) from exc
         raise ExtractionError("The OCR engine failed to read this image.") from exc
     except RuntimeError as exc:  # pytesseract signals a timeout with a RuntimeError
         raise ExtractionError("OCR took too long on this image and was stopped.") from exc

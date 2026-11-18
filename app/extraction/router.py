@@ -4,6 +4,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from app.extraction.errors import ExtractionError
+from app.extraction.languages import normalize_language
 from app.extraction.models import ExtractionResult, Method
 from app.extraction.ocr import extract_image_text
 from app.extraction.pdf_ocr import extract_scanned_pdf_text
@@ -29,6 +30,7 @@ def extract_text(
     treated as a scan and sent to OCR. The extractors are injectable so the routing
     can be tested without real files.
     """
+    language = normalize_language(language)
     if kind == "pdf":
         text = pdf_extractor(path)
         if len(text.strip()) >= SCANNED_MIN_CHARS:

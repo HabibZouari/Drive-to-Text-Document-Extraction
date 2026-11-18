@@ -17,6 +17,11 @@ class FileInfo(BaseModel):
     size: int | None
 
 
+class LanguageInfo(BaseModel):
+    code: str
+    label: str
+
+
 class FolderResponse(BaseModel):
     folder_id: str
     files: list[FileInfo]

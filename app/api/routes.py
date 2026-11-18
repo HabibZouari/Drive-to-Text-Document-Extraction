@@ -6,7 +6,8 @@ from fastapi import APIRouter, Depends
 from app.config import Settings, get_settings
 from app.drive.client import DriveClient
 from app.drive.url import extract_folder_id
-from app.schemas import FileInfo, FolderRequest, FolderResponse
+from app.extraction.languages import SUPPORTED_LANGUAGES
+from app.schemas import FileInfo, FolderRequest, FolderResponse, LanguageInfo
 
 router = APIRouter(prefix="/api")
 
@@ -24,6 +25,12 @@ def get_drive_client(
 @router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@router.get("/languages", response_model=list[LanguageInfo])
+def list_languages():
+    """OCR languages the user can choose from."""
+    return [LanguageInfo(code=code, label=label) for code, label in SUPPORTED_LANGUAGES.items()]
 
 
 @router.post("/folders", response_model=FolderResponse)
