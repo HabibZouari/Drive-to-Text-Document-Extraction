@@ -16,18 +16,23 @@ def extract_image_text(path: Path, language: str = "eng") -> str:
         with Image.open(path) as source:
             source.load()
             image = _prepare(source)
+    except (UnidentifiedImageError, Image.DecompressionBombError, OSError) as exc:
+        raise ExtractionError("This file is not a valid image or is corrupted.") from exc
+    return recognize(image, language)
+
+
+def recognize(image: Image.Image, language: str = "eng") -> str:
+    """Run Tesseract on an in-memory image. Shared with the scanned-PDF pipeline."""
+    try:
         return pytesseract.image_to_string(
             image, lang=language, timeout=OCR_TIMEOUT_SECONDS
         ).strip()
-    # Order matters: TesseractNotFoundError is an OSError, so it must be caught before it.
     except pytesseract.TesseractNotFoundError as exc:
         raise ExtractionError("The OCR engine (Tesseract) is not installed on the server.") from exc
     except pytesseract.TesseractError as exc:
         raise ExtractionError("The OCR engine failed to read this image.") from exc
     except RuntimeError as exc:  # pytesseract signals a timeout with a RuntimeError
         raise ExtractionError("OCR took too long on this image and was stopped.") from exc
-    except (UnidentifiedImageError, Image.DecompressionBombError, OSError) as exc:
-        raise ExtractionError("This file is not a valid image or is corrupted.") from exc
 
 
 def _prepare(image: Image.Image) -> Image.Image:

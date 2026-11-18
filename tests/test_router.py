@@ -9,8 +9,15 @@ from app.extraction.router import extract_text
 PATH = Path("irrelevant")
 
 
+PDF_TEXT = "text layer long enough to be a real document"
+
+
 def fake_pdf(path):
-    return "text from pdf"
+    return PDF_TEXT
+
+
+def fake_scanned_pdf(path, language):
+    return f"ocr of scanned pdf ({language})"
 
 
 def fake_image(path, language):
@@ -18,13 +25,18 @@ def fake_image(path, language):
 
 
 def route(kind, language="eng", **overrides):
-    extractors = {"pdf_extractor": fake_pdf, "image_extractor": fake_image, **overrides}
+    extractors = {
+        "pdf_extractor": fake_pdf,
+        "scanned_pdf_extractor": fake_scanned_pdf,
+        "image_extractor": fake_image,
+        **overrides,
+    }
     return extract_text(PATH, kind, language, **extractors)
 
 
 def test_pdf_goes_to_the_pdf_parser():
     result = route("pdf")
-    assert result.text == "text from pdf"
+    assert result.text == PDF_TEXT
     assert result.method is Method.PDF_PARSER
 
 
