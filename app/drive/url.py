@@ -11,6 +11,11 @@ _ID_ONLY = re.compile(rf"^{_ID}$")
 _QUERY_STYLE_PATHS = {"/open", "/folderview"}
 
 
+def is_valid_folder_id(value: str) -> bool:
+    """True if ``value`` looks like a Drive folder id (as returned by extract_folder_id)."""
+    return bool(_ID_ONLY.match(value or ""))
+
+
 def extract_folder_id(url: str) -> str:
     """Return the Drive folder id contained in ``url``.
 
