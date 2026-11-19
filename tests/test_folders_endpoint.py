@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.routes import get_drive_client
+from app.api.dependencies import get_drive_client
 from app.drive.client import DriveFile
 from app.drive.errors import (
     DriveConfigError,
