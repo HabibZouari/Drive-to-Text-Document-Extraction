@@ -82,3 +82,48 @@ button:disabled {
   background: #fdecea;
   color: #a12622;
 }
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.select-all {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 8px 6px;
+  text-align: left;
+  border-top: 1px solid var(--border);
+}
+
+th {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+th:first-child,
+td:first-child {
+  width: 32px;
+}
+
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.name {
+  word-break: break-word;
+}
