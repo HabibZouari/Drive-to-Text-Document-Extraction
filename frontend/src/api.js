@@ -34,3 +34,19 @@ export function listFolder(url) {
     body: JSON.stringify({ url }),
   });
 }
+
+export function getLanguages() {
+  return request("/api/languages");
+}
+
+export function createJob(folderId, fileIds, language) {
+  return request("/api/jobs", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ folder_id: folderId, file_ids: fileIds, language }),
+  });
+}
+
+export function getJob(jobId) {
+  return request(`/api/jobs/${jobId}`);
+}
