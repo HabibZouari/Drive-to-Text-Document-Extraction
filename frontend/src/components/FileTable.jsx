@@ -32,7 +32,7 @@ export default function FileTable({ files, selected, onToggle, onToggleAll }) {
       <table>
         <thead>
           <tr>
-            <th aria-label="Select" />
+            <th className="check" aria-label="Select" />
             <th>Name</th>
             <th>Type</th>
             <th className="num">Size</th>
@@ -41,7 +41,7 @@ export default function FileTable({ files, selected, onToggle, onToggleAll }) {
         <tbody>
           {files.map((file) => (
             <tr key={file.id}>
-              <td>
+              <td className="check">
                 <input
                   type="checkbox"
                   aria-label={`Select ${file.name}`}

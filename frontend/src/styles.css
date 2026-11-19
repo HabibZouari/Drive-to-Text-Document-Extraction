@@ -114,8 +114,7 @@ th {
   color: var(--muted);
 }
 
-th:first-child,
-td:first-child {
+.check {
   width: 32px;
 }
 
