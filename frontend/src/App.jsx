@@ -1,19 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+
+import FolderForm from "./components/FolderForm.jsx";
 
 export default function App() {
-  const [apiStatus, setApiStatus] = useState("checking");
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then((response) => (response.ok ? "online" : "error"))
-      .catch(() => "offline")
-      .then(setApiStatus);
-  }, []);
+  const [folder, setFolder] = useState(null);
 
   return (
     <main className="page">
       <h1>Drive to Text</h1>
-      <p className="muted">API status: {apiStatus}</p>
+      <p className="muted">
+        Extract text from the PDFs and images of a public Google Drive folder.
+      </p>
+
+      <FolderForm onLoaded={setFolder} />
+
+      {folder && (
+        <p className="muted">
+          {folder.files.length === 0
+            ? "No PDF or image found in this folder."
+            : `${folder.files.length} supported file(s) found.`}
+        </p>
+      )}
     </main>
   );
 }
