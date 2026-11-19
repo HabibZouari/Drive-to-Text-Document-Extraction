@@ -184,3 +184,39 @@ progress {
   font-size: 0.8125rem;
   color: #a12622;
 }
+
+.button {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+}
+
+.button.disabled {
+  opacity: 0.6;
+}
+
+details {
+  margin-top: 4px;
+}
+
+summary {
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--accent);
+}
+
+pre {
+  max-height: 320px;
+  overflow: auto;
+  margin: 8px 0 0;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  font: 0.8125rem/1.5 ui-monospace, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
