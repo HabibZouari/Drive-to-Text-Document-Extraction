@@ -1,0 +1,22 @@
+# Secrets and local config: the key is given at run time, never baked in.
+.env
+.env.*
+
+# Generated or local files.
+.git
+.gitignore
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Not needed in the runtime image.
+tests/
+requirements-dev.txt
+pyproject.toml
+*.md
