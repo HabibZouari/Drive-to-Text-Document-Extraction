@@ -1,0 +1,103 @@
+{
+  "job_id": "b16625d05b6c4fe9bca929722b483534",
+  "status": "completed",
+  "language": "eng",
+  "created_at": "2026-11-20T15:23:41.489254Z",
+  "counts": {
+    "total": 8,
+    "pending": 0,
+    "processing": 0,
+    "done": 7,
+    "failed": 1
+  },
+  "files": [
+    {
+      "id": "1cJ_LL567aCea_X5dXpLWLkW7fefnbiKq",
+      "name": "affiche_fr.jpg",
+      "type": "image",
+      "size": 65511,
+      "status": "done",
+      "method": "ocr",
+      "text": "Féte de la musique\n\nRendez-vous le samedi 21 juin a 18h\nEntrée libre, ambiance garantie.\nVenez nombreux a la médiatheque !",
+      "error": null,
+      "duration_ms": 1370
+    },
+    {
+      "id": "1dPv55KYKwrORerpMb_tqj-B15gnMBJfp",
+      "name": "corrupted.pdf",
+      "type": "pdf",
+      "size": 28,
+      "status": "failed",
+      "method": null,
+      "text": null,
+      "error": "This file is not a valid PDF or is corrupted.",
+      "duration_ms": 970
+    },
+    {
+      "id": "1_1fr48pNQMZzO_YJVFYdwFUhSnuEbive",
+      "name": "declaration_fr.pdf",
+      "type": "pdf",
+      "size": 1859,
+      "status": "done",
+      "method": "pdf_parser",
+      "text": "Déclaration des droits de l'homme et du citoyen\nArticle premier. Les hommes naissent et demeurent libres et égaux en droits.\nLes distinctions sociales ne peuvent être fondées que sur l'utilité commune.\nArticle 2. Le but de toute association politique est la conservation des droits\nnaturels et imprescriptibles de l'homme. Ces droits sont la liberté, la propriété,\nla sûreté et la résistance à l'oppression.",
+      "error": null,
+      "duration_ms": 764
+    },
+    {
+      "id": "1BH8RVKyRHBRqohUxmmJ6N51iQRuTqmp6",
+      "name": "invoice_en.pdf",
+      "type": "pdf",
+      "size": 1888,
+      "status": "done",
+      "method": "pdf_parser",
+      "text": "INVOICE #2026-0042\nExample Trading Ltd.\n12 Sample Street, Testville\nBill to: Demo Customer Inc.\nDate: 2026-11-03    Due: 2026-12-03\nDescription                      Qty     Unit price     Total\nConsulting services (10 hours)     10        80.00       800.00\nSoftware licence (annual)           1       250.00       250.00\nTotal due: 1050.00 EUR\nPayment by bank transfer within 30 days. Thank you for your business.",
+      "error": null,
+      "duration_ms": 838
+    },
+    {
+      "id": "16TPjoUPssT_q8YZ5DW8TfO2940yIu-ih",
+      "name": "note_ar.png",
+      "type": "image",
+      "size": 31608,
+      "status": "done",
+      "method": "ocr",
+      "text": "ed gVI soled\nGgball aol SI 08 yughuio Lol yull gor oy\nSl6YI To» Lax: pgiaz: Jole, Ul pgules Luaiog Mas loins 155",
+      "error": null,
+      "duration_ms": 1091
+    },
+    {
+      "id": "1iVt5IUt0vL0oGYCI7qCQ7o7oqApiKRFp",
+      "name": "receipt_en.png",
+      "type": "image",
+      "size": 35343,
+      "status": "done",
+      "method": "ocr",
+      "text": "RECEIPT\nExample Cafe\n\nCoffee 3.50\nCroissant 2.20\nOrange juice 4.00\nTOTAL 9.70 EUR\n\nThank you!",
+      "error": null,
+      "duration_ms": 1140
+    },
+    {
+      "id": "1xuikHom2QshpXJVprqgzD6Z64aFNyTNT",
+      "name": "report_multipage_en.pdf",
+      "type": "pdf",
+      "size": 3205,
+      "status": "done",
+      "method": "pdf_parser",
+      "text": "Quarterly Report - Page 1\nDocument intelligence systems turn unstructured files into structured data.\nA typical pipeline starts by collecting documents from a shared location.\nEach file is then routed to the right extraction method depending on its type.\nNative PDFs already contain a text layer that can be read directly.\nImages and scanned pages must go through optical character recognition.\n\nQuarterly Report - Page 2\nDocument intelligence systems turn unstructured files into structured data.\nA typical workflow starts by collecting documents from a shared location.\nEach file is then routed to the right extraction method depending on its type.\nNative PDFs already contain a text layer that can be read directly.\nImages and scanned pages must go through optical character recognition.\n\nQuarterly Report - Page 3\nConclusion\nRouting documents correctly saves time and money.",
+      "error": null,
+      "duration_ms": 910
+    },
+    {
+      "id": "1v6rB3Af7XGqlvFcQsbORjvnFm98hT88l",
+      "name": "scanned_letter.pdf",
+      "type": "pdf",
+      "size": 100053,
+      "status": "done",
+      "method": "ocr",
+      "text": "SCANNED LETTER\n\nDear Sir or Madam,\n\nThis page is an image of a printed letter.\n\nIt has no text layer, so a PDF parser finds nothing.\n\nThe application should detect this and use OCR instead.\n\nKind regards,\nThe Test Team",
+      "error": null,
+      "duration_ms": 1308
+    }
+  ]
+}

@@ -77,6 +77,23 @@ the page loads but asks for the key when you paste a link.
 
 The Drive folder must be shared as "Anyone with the link" (viewer).
 
+## Try it with my test folder
+
+I made a public Drive folder with 8 small sample files, so you can try the app
+without preparing anything:
+
+https://drive.google.com/drive/folders/12kmyyiJPTo7CM2WSvGjFzP4z2-cTSPV4?usp=sharing
+
+It has native PDFs (English and French), a scanned PDF, images in English,
+French and Arabic, and one corrupted PDF to show that a failing file does not
+stop the batch. There is no personal data in it.
+
+The output of one run on this folder is in
+[samples/sample-output.json](samples/sample-output.json). I ran all 8 files with
+English as the OCR language: 7 are done and 1 failed (the corrupted PDF, on
+purpose). With English selected the Arabic image is not read correctly, to read
+it choose Arabic.
+
 ## Settings
 
 All settings are in `.env`:
