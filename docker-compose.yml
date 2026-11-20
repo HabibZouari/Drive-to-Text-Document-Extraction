@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    image: drive-to-text
+    ports:
+      - "8000:8000"
+    # GOOGLE_API_KEY and the optional limits come from the local .env file
+    # (copy .env.example to .env first).
+    env_file: .env
+    restart: unless-stopped
